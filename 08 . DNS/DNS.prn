@@ -1,0 +1,132 @@
+Script started on Monday 18 October 2021 11:07:11 AM IST
+[19bcs163@mepcolinux DNS]$cat server.c 
+#include<stdio.h>
+#include<unistd.h>
+#include<string.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+
+int main()
+{
+    struct sockaddr_in cin;
+    struct sockaddr_in ccin;
+    char buf[40],value[40],value1[40];
+    int i,j,k;
+    FILE *f1;
+    int cid=socket(PF_INET,SOCK_DGRAM,IPPROTO_UDP);
+    if(cid == -1){
+        perror("creation failed\n");
+    }
+    else{
+        printf("Socket Created\n");
+        cin.sin_family=AF_INET;
+        cin.sin_port=htons(30163);
+        cin.sin_addr.s_addr=INADDR_ANY;
+        if(bind(cid,(struct sockaddr*)&cin,sizeof(cin)) == -1){
+            close(cid);
+            perror("Bind Failed\n");
+        }
+        else{
+            printf("Binding Complete.\n");
+            while(1)
+            {
+               k = 0;
+               f1 = fopen("table.txt","r");
+               int len = sizeof(ccin);
+               int n=recvfrom(cid,buf,sizeof(buf),MSG_WAITALL,(struct sockaddr*)&ccin,&len);
+               if(strcmp(buf,"bye")==0)
+                    break;
+               do
+               {
+                   fscanf(f1,"%s %s\n",value,value1);
+                   if(strcmp(buf,value)==0)
+                   {
+                        int snt = sendto(cid,value1,sizeof(value1),MSG_CONFIRM,(struct sockaddr*)&ccin,len);
+                        printf("HOSTFOUNT\n");
+                        k++;
+                   }
+               }while(!feof(f1));
+               fclose(f1);
+               if(k==0)
+               {
+                     printf("HOSTNOTFOUND\n");
+                     int snt = sendto(cid,"IP Not Found",sizeof("IP Not Found"),MSG_CONFIRM,(struct sockaddr*)&ccin,len);
+               }
+            }
+        
+        }
+        }
+    int status = close(cid);
+    if(status == -1){
+        perror("close failed\n");
+    }else{
+        printf("closed\n");
+    }
+}
+[19bcs163@mepcolinux DNS]$cat client.c
+#include<stdio.h>
+#include<unistd.h>
+#include<string.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+int main(){
+    struct sockaddr_in cin;
+    struct sockaddr_in ccin;
+    char msg[30];
+    char receive[100];
+
+    int ccid=socket(PF_INET,SOCK_DGRAM,IPPROTO_UDP);
+    if(ccid == -1){
+        perror("creation failed\n");
+    }else{
+        printf("Socket created\n");
+        ccin.sin_family=AF_INET;
+        ccin.sin_port=htons(30163);
+        ccin.sin_addr.s_addr=INADDR_ANY;
+        int len=sizeof(ccin);
+        while(1){
+        printf("domain name : ");
+        scanf("%s",msg);
+        int n = sendto(ccid,msg,sizeof(msg),MSG_CONFIRM,(struct sockaddr*)&ccin,len);
+        if(strcmp(msg,"bye")==0)
+               break;
+        len=sizeof(cin);
+        int re=recvfrom(ccid,receive,sizeof(receive),MSG_CONFIRM,(struct sockaddr*)&cin,&len);
+        printf("IP  address : %s \n",receive);
+    }}
+    int status = close(ccid);
+    if(status == -1){
+        perror("close failed\n");
+    }else{
+        printf("closed\n");
+    }
+return 0;
+}
+[19bcs163@mepcolinux DNS]$cat table.txt 
+www.google.com 142.250.193.174
+www.mepcoeng.ac.in 172.16.16.200
+erb.mepcoeng.ac.in 172.16.16.111
+[19bcs163@mepcolinux DNS]$./s.o 
+Socket Created
+Binding Complete.
+HOSTFOUNT
+HOSTFOUNT
+HOSTNOTFOUND
+closed
+[19bcs163@mepcolinux DNS]$./c.o
+Socket created
+domain name : www.google.com
+IP  address : 142.250.193.174 
+domain name : www.mepcoeng.ac.in
+IP  address : 172.16.16.200 
+domain name : mail.mepcoeng.ac.in
+IP  address : IP Not Found 
+domain name : bye
+closed
+[19bcs163@mepcolinux DNS]$exit
+exit
+Script done on Monday 18 October 2021 11:09:32 AM IST
