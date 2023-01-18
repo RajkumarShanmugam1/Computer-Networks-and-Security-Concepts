@@ -1,4 +1,3 @@
-# Computer-Network-and-Security-Concepts
-## Computer network concepts developed by c -- socket library
+# Concurrent Server Half Duplex Chat
 
-![image](https://user-images.githubusercontent.com/76644058/211244315-406bc29c-e49d-4f37-a495-9e77c7568eba.png)
+![image](https://user-images.githubusercontent.com/76644058/213084216-7423932e-d1da-44b1-ab7c-3da7d757869a.png)
