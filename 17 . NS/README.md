@@ -8,10 +8,11 @@
 
 ## NS2
  ### Install
-    ```sh
-    sudo apt-get install ns2
-    ```
-   
+ 
+ ```sh
+ sudo apt-get install ns2
+ ```
+ 
  ### Features of NS2 :
  
   - It’s a networking research discrete event simulator.
