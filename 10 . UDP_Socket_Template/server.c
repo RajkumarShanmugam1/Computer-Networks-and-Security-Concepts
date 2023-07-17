@@ -1,42 +1,58 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<string.h>
-#include<stdlib.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-int main(){
-    struct sockaddr_in cin;
-    struct sockaddr_in ccin;
-    int cnt =0 ;
-    int ccid=socket(PF_INET,SOCK_DGRAM,IPPROTO_UDP);
-    if(ccid == -1){
-        perror("creation failed\n");
-    }else{
-        printf("created\n");
-        int len;
-        ccin.sin_family=AF_INET;
-        ccin.sin_port=htons(12343);
-        ccin.sin_addr.s_addr=inet_addr("127.0.0.2");
+/* UDP Socket - Template
+ * Server program
+ */
 
-        cin.sin_family=AF_INET;
-        cin.sin_port=htons(12342);
-        cin.sin_addr.s_addr=inet_addr("127.0.0.1");
-        
-        if(bind(ccid,(struct sockaddr*)&ccin,sizeof(ccin)) == -1){
-                perror("bind failed");
-                exit(1);
-        }
-        
-        //Your Application
-        
-    int status = close(ccid);
-    if(status == -1){
-        perror("close failed\n");
-    }else{
-        printf("closed\n");
-    }
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
 
+#define IP   "127.0.0.1"  /* Your IP address */
+#define PORT 1234         /* PORT */
+
+int main() {
+    int server_socket;
+    char buffer[100];
+    struct sockaddr_in server_addr, client_addr;
+    socklen_t client_addr_size = sizeof(client_addr);
+
+    /* SOCKET */
+    server_socket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (server_socket < 0) {
+        perror("SOCKET CREATION FAILED");
+        exit(EXIT_FAILURE);
     }
-return 0;
+    printf("SOCKET CREATED\n");
+
+    /* IP Address and port initialization */
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = inet_addr(IP);//INADDR_ANY;
+    server_addr.sin_port = htons(PORT);
+
+    /* BIND */
+    if (bind(server_socket, (const struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        perror("BIND FAILED");
+        close(server_socket);
+        exit(EXIT_FAILURE);
+    }
+    printf("BIND CREATED\n");
+
+    /* APPLICATION */
+    /* Receive for DEMO Connection*/
+    memset(buffer, 0, sizeof(buffer));
+    recvfrom(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &client_addr_size);
+    printf("\nCLIENT : %s\n", buffer);
+
+    /* SOCKET CLOSE */
+    if (close(server_socket) == 0) {
+        printf("SERVER SOCKET CLOSED\n");
+    } 
+    else {
+        perror("SERVER SOCKET CLOSE ERROR");
+    }
+    return 0;
 }
