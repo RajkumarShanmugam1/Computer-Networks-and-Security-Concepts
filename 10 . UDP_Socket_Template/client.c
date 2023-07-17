@@ -1,55 +1,45 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<string.h>
-#include<stdlib.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
+/* UDP Socket - TEMPLATE
+ * Client program
+ */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
 
-int main()
-{
-  struct sockaddr_in cin;
-  struct sockaddr_in ccin;
-  struct sockaddr_in client;
- //  char dname[30];
- //  char msg[30];
-  int i,j;
-  int cid=socket(PF_INET,SOCK_DGRAM,IPPROTO_UDP);
-  if(cid == -1)
-  {
-        perror("creation failed\n");
-  }
-  else
-  {
-        printf("created\n");
-        cin.sin_family=AF_INET;
-        cin.sin_port=htons(12342);
-        cin.sin_addr.s_addr=inet_addr("127.0.0.1");
+#define IP   "127.0.0.1"  /* Your IP address */
+#define PORT 1234         /* Your port */   
 
-        ccin.sin_family=AF_INET;
-        ccin.sin_port=htons(12343);
-        ccin.sin_addr.s_addr=inet_addr("127.0.0.2");
-
-        if(bind(cid,(struct sockaddr*)&cin,sizeof(cin)) == -1)
-        {
-            close(cid);
-            perror("bind failed\n");
-        }
-        else
-        {
-            printf("binded\n");
-        }
-        
-        // Your Application
-        
-    int status = close(cid);
-    if(status == -1){
-        perror("close failed\n");
-    }else{
-        printf("closed\n");
+int main() {
+    int client_socket;
+    struct sockaddr_in server_addr;
+    
+    /* SOCKET */
+    client_socket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (client_socket < 0) {
+        perror("SOCKET CREATION FAILED");
+        exit(EXIT_FAILURE);
     }
+    printf("SOCKET CREATED\n");
 
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = inet_addr(IP);
+
+    /* APPLICATION */
+    /* SENT FOR DEMO*/
+    sendto(client_socket, "DEMO", strlen("DEMO"), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
+
+    /* CLOSE THE SOCKET */
+    if (close(client_socket) == 0) {
+        printf("CLIENT SOCKET CLOSED\n");
+    } 
+    else {
+        perror("CLIENT SOCKET CLOSE ERROR");
     }
-return 0;
+    return 0;
 }
